@@ -14,7 +14,7 @@ ESCKEY	=	1	; Ktos wcisnol Esc
 NEXTPLANET =	3	; Przejdz do nastepnej planety
 BREAK	=	4	; przejdz do "Robbo konstruktora"
 ENDGAME	=	5	; Koniec gry (wszystkie plansze ukonczone !)
-DEATH	=	6	; Koniec gry (Robbo kopnol w kalendarz)
+DEATH	=	6	; Koniec gry (Robbo kopnal w kalendarz)
 
 
 
@@ -419,7 +419,7 @@ DS_LoopY			moveq	#0,d0
 * Przepisuje plansze do bufora ,z ktorego jest wyswietlana
 
 
-PrzepiszPlansze	clr.w	Srobki
+PrzepiszPlansze	clr.w	Srubki
 		clr.w	Naboje
 		clr.w	Klucze
 		lea	Plansza+(18+1),a0
@@ -436,9 +436,9 @@ PP_LoopX		movem.l	a0/a1,-(sp)
 
 PP_LoopY			move.b	(a1),d1
 				cmp.b	#36,d1
-				bne.b	PP_NoSrob
-				addq.w	#1,Srobki
-PP_NoSrob			move.b	d1,(a0)
+				bne.b	PP_NoSrub
+				addq.w	#1,Srubki
+PP_NoSrub			move.b	d1,(a0)
 				add.l	#16,a1
 				add.l	#18,a0
 
@@ -1203,7 +1203,7 @@ MWL_Robbo	move.b	#91,(a1)
 ***********************************
 
 KapsulaZamknieta
-		tst.w	Srobki
+		tst.w	Srubki
 		bne.b	KZ_Nic
 		move.b	#34,(a0)
 		move.w	d0,FlashFlag
@@ -1544,9 +1544,9 @@ D_Cant		moveq	#1,d1
 		bsr.w	AddScore
 		rts
 
-Srobka		tst.w	Srobki
+Srubka		tst.w	Srubki
 		beq.w	S_Zero
-		subq.w	#1,Srobki
+		subq.w	#1,Srubki
 S_Zero		moveq	#1,d1
 		move.l	#$00000300,AddValue
 		bsr.w	AddScore
@@ -2310,7 +2310,7 @@ UpdateInfo	move.w	Planeta,d0
 		move.w	Klucze,d0
 		moveq	#16,d1
 		bsr.s	ShowInfoNumber2
-		move.w	Srobki,d0
+		move.w	Srufbki,d0
 		moveq	#10,d1
 		bsr.s	ShowInfoNumber2
 		bsr.s	ShowScore
@@ -2424,7 +2424,7 @@ Plansza		blk.b	(16+2)*(32+2),33
 ;  		- Puste miejsce
 ; !		- Murek zwykly		
 ; #		- Skrzynka
-; $		- Srobka
+; $		- Srubka
 ; %		- Ptaszek w prawo
 ; &		- Ptaszek w lewo
 ; '		- Kapsula zamknieta
@@ -2609,7 +2609,7 @@ RobboKillTable	dc.b	37,38,37+128,38+128
 GetTable	dc.b	43,0
 		dc.l	Dodatek
 		dc.b	36,0
-		dc.l	Srobka
+		dc.l	Srubka
 		dc.b	59,0
 		dc.l	Drzwi
 		dc.b	92,0
@@ -3011,16 +3011,16 @@ RobboFaza	dc.w	1	; Faza robba
 RobboEorFaza	dc.w	0	; "Faza" fazy (?)
 FlashFlag	dc.w	0
 FireCounter	dc.w	0
-RobboCounter	dc.w	15	; Gdy odliczy do 0 to robbo na pewno zginol
+RobboCounter	dc.w	15	; Gdy odliczy do 0 to robbo na pewno zginal
 RobboFlag	dc.w	8	; Jesli <>0 to robbo dopiero sie pojawia
-RobboShowChar	dc.w	34	; faza robba jaka ma sie pojawic po skonczeniu
+RobboShowChar	dc.w	34	; faza robbo jaka ma sie pojawic po zakonczeniu
 				; pojawiania
 
 RobboWTeleporcie
 		dc.w	0	; 0.b - Numer teleportu (1,2,3,4,5,6)
-				; gdy = 0 to Robba nie ma w teleporcie
+				; gdy = 0 to Robbo nie ma w teleporcie
 				;
-				; 1.b - Kierunek w ktorym robbo "wszedl" do
+				; 1.b - Kierunek w ktorym Robbo "wszedl" do
 				; teleportu :
 				; 0   ->&
 				;
@@ -3043,7 +3043,7 @@ ExitFlag	dc.w	0	; jesli 0 to dalej trwa gra
 
 Planeta		dc.w	1
 Zycia		dc.w	8
-Srobki		dc.w	3
+Srubki		dc.w	3
 Klucze		dc.w	0
 Naboje		dc.w	0
 AddValue	dc.l	$00000100	; Ile ma dodac procedura AddScore
@@ -3187,13 +3187,13 @@ CharsAddress	ds.b	256*4
 
 
 		IFEQ	ALLOCGFX
->Extern	"work:programming/assembler/progs/robbo/data/robbo2.data",DATA
+>Extern	"data/robbo2.data",DATA
 Colors	=		DATA
 GfxData	=		DATA+64
 ClockFonty	=	GfxData+40960
 Fonts		=	ClockFonty+160
->Extern "work:programming/assembler/progs/robbo/data/clockfonty.data",ClockFonty
->Extern "work:programming/assembler/progs/robbo/data/8Fonty.data",Fonts
+>Extern "data/clockfonty.data",ClockFonty
+>Extern "data/8Fonty.data",Fonts
 				IFNE	CLS
 					AUTO	F\Bitplans\Bitplans+41023\0\
 				ENDC
