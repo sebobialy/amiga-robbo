@@ -70,7 +70,16 @@ class ExecutableFile:
 				self.m_hunks.append( hunk )
 			except IOError:
 				raise RuntimeError( "Unexpected error while reading file" )
-				
+	
+	def prepareRam( self ):
+		ram = bytearray( 0x10000 )
+		for hunk in self.m_hunks:
+			address = hunk.start()
+			for byte in hunk.data():
+				ram[address] = byte
+				address += 1
+		return ram
+	
 	def __iter__( self ):
 		return self.m_hunks.__iter__()
 
@@ -78,7 +87,6 @@ def displayFileInformation( fileName : str ):
 	file = ExecutableFile( fileName )
 	for hunk in file:
 		print( "Hunk: start: {}({}), size {}({})".format( hunk.start(), hex( hunk.start() ), hunk.size(), hex( hunk.size() ) ) )
-		pass
 		
 if __name__ == "__main__":
 	if len( sys.argv ) != 2:
