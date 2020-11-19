@@ -19,6 +19,7 @@ class Item( Enum ):
 	Dust = 11
 	OneUp = 12
 	WallAlternate = 13
+	BoxOnWheels = 14
 	
 	MagnetLeft = 20
 	MagnetRight = 21
@@ -32,6 +33,7 @@ class Item( Enum ):
 	Teleporter6 = 106
 	Teleporter7 = 107
 	Teleporter8 = 108
+	Teleporter9 = 109
 	
 	LaserRight = 200
 	LaserDown = 201
@@ -42,7 +44,16 @@ class Item( Enum ):
 	CannonDown = 301
 	CannonLeft = 302
 	CannonUp = 303
-	RotatingCannon = 304
+	RotatingCannon1 = 304
+	RotatingCannon2 = 305
+	
+	DustCannonRight = 308
+	DustCannonLeft = 309
+	DustCannonDown = 310
+	DustCannonUp = 311
+	
+	MovingCannonLeft = 312
+	MovingCannonRight = 313
 	
 	OwlRight = 400
 	OwlDown = 401
@@ -59,9 +70,16 @@ class Item( Enum ):
 	BirdDown = 422
 	BirdUp = 423
 	
+	BirdUnknown1 = 425
+	
 	Eyes = 500
 	
+	BeltStart = 600
+	Belt = 601
+	BeltEnd = 602
+	
 	Void = 1000
+	Error = 2000
 
 atariToItem = {
 	  ord(' ') : Item.Empty
@@ -69,6 +87,7 @@ atariToItem = {
 	, 0x5c : Item.WallAlternate
 
 	, ord('#') : Item.Box
+	, 0x06 : Item.BoxOnWheels
 	, ord('$') : Item.Screw
 	, ord('!') : Item.Ammo
 	, ord('@') : Item.Bomb
@@ -92,14 +111,27 @@ atariToItem = {
 	, ord('6') : Item.Teleporter6
 	, ord('7') : Item.Teleporter7
 	, ord('8') : Item.Teleporter8
+	, ord('9') : Item.Teleporter9
 	
 	, 0x27 : Item.LaserDown
 	, ord('^') : Item.LaserUp
+	, ord('<') : Item.LaserLeft
+	, ord('>') : Item.LaserRight
 
-	, ord('>') : Item.CannonRight
+	, 0x1c : Item.CannonUp
+	, 0x1f : Item.CannonRight
 	, 0x1e : Item.CannonLeft
 	, 0x1d : Item.CannonDown
-	, ord('-') : Item.RotatingCannon
+	, ord('-') : Item.RotatingCannon1
+	, ord(',') : Item.RotatingCannon2
+	
+	, 0x01 : Item.DustCannonRight
+	, 0x04 : Item.DustCannonLeft
+	, 0x17 : Item.DustCannonDown
+	, 0x18 : Item.DustCannonUp
+	
+	, 0x0e : Item.MovingCannonLeft
+	, 0x0d : Item.MovingCannonRight
 	
 	, ord('A') : Item.OwlRight
 	, ord('B') : Item.OwlDown
@@ -116,9 +148,15 @@ atariToItem = {
 	, ord( 'L' ) : Item.BirdDown
 	, ord( 'K' ) : Item.BirdUp
 	
+	, ord( 'M' ) : Item.BirdUnknown1
+	
 	, ord('&') : Item.Eyes
 	
 	, ord('*') : Item.Robbo
+	
+	, 0x11 : Item.BeltStart
+	, 0x0f : Item.Belt
+	, 0x05 : Item.BeltEnd
 }
 
 ItemToDump = {
@@ -132,6 +170,7 @@ ItemToDump = {
 	, Item.Door : '|'
 	, Item.Dust : '%'
 	, Item.Box : '#'
+	, Item.BoxOnWheels : '#'
 	, Item.Key : '='
 	, Item.Exit : '\u263C'
 	, Item.Suprise : '?'
@@ -142,7 +181,14 @@ ItemToDump = {
 	, Item.CannonDown : '\u25BD'
 	, Item.CannonLeft : '\u25C1'
 	, Item.CannonUp : '\u25B3'
-	, Item.RotatingCannon : '\u25C7'
+	, Item.RotatingCannon1 : '\u25C7'
+	, Item.RotatingCannon2 : '\u25C7'
+	, Item.DustCannonRight : '>'
+	, Item.DustCannonLeft : '<'
+	, Item.DustCannonDown : 'v'
+	, Item.DustCannonUp : '^'
+	, Item.MovingCannonLeft : '^'
+	, Item.MovingCannonRight : '^'
 	, Item.LaserRight : '\u25B6'
 	, Item.LaserDown : '\u25BC'
 	, Item.LaserLeft : '\u25C0'
@@ -159,6 +205,7 @@ ItemToDump = {
 	, Item.BirdRight : 'J'
 	, Item.BirdDown : 'L'
 	, Item.BirdUp : 'K'
+	, Item.BirdUnknown1 : 'M'
 	, Item.Eyes : '&'
 	, Item.Teleporter0 : '0'
 	, Item.Teleporter1 : '1'
@@ -169,9 +216,14 @@ ItemToDump = {
 	, Item.Teleporter6 : '6'
 	, Item.Teleporter7 : '7'
 	, Item.Teleporter8 : '8'
+	, Item.Teleporter9 : '9'
 
+	, Item.BeltStart : '{'
+	, Item.Belt : '-'
+	, Item.BeltEnd : '}'
 
 	, Item.Void : '.'
+	, Item.Error : 'X'
 }
 
 class Planet:
@@ -183,7 +235,8 @@ class Planet:
 				try:
 					item = atariToItem[ data[ x + 16*y ] ]
 				except KeyError:
-					item = Item.Void
+					raise
+					item = Item.Error
 				self.m_items[ y ].append( item )
 	
 	def getItem( self, x : int, y : int ):
@@ -194,6 +247,7 @@ def getPlanets( file : atari_file.ExecutableFile ):
 	ram = file.prepareRam()
 	planets = []
 	for i in range( 56 ):
+		print ( i )
 		planetData = ram[0x3800 + i * 0x200 : 0x3800 + (i+1) * 0x200 ] 
 		planets.append( Planet( planetData ) )
 	return planets
@@ -210,4 +264,10 @@ if __name__ == "__main__":
 	if len( sys.argv ) != 2:
 		raise RuntimeError( "Expected a file name" )
 
-dumpPlanet( getPlanets( atari_file.ExecutableFile( sys.argv[1] ) )[10] )
+#dumpPlanet( getPlanets( atari_file.ExecutableFile( sys.argv[1] ) )[49] )
+
+i = 0
+planets = getPlanets( atari_file.ExecutableFile( sys.argv[1] ) )
+for planet in planets:
+	print ( i )
+	dumpPlanet( planet )
