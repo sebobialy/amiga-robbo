@@ -1,7 +1,5 @@
 import atari_file
-import io
-import array
-import sys
+
 from enum import Enum
 
 class Item( Enum ):
@@ -159,115 +157,33 @@ atariToItem = {
 	, 0x05 : Item.BeltEnd
 }
 
-ItemToDump = {
-	  Item.Empty : ' '
-	, Item.Wall : '\u25A1'
-	, Item.WallAlternate : '\u25A0'
-	, Item.Robbo : '*'
-	, Item.Screw : '$'
-	, Item.Ammo : '!'
-	, Item.Bomb : '@'
-	, Item.Door : '|'
-	, Item.Dust : '%'
-	, Item.Box : '#'
-	, Item.BoxOnWheels : '#'
-	, Item.Key : '='
-	, Item.Exit : '\u263C'
-	, Item.Suprise : '?'
-	, Item.OneUp : '+'
-	, Item.MagnetLeft : ')'
-	, Item.MagnetRight : '('
-	, Item.CannonRight : '\u25B7'
-	, Item.CannonDown : '\u25BD'
-	, Item.CannonLeft : '\u25C1'
-	, Item.CannonUp : '\u25B3'
-	, Item.RotatingCannon1 : '\u25C7'
-	, Item.RotatingCannon2 : '\u25C7'
-	, Item.DustCannonRight : '>'
-	, Item.DustCannonLeft : '<'
-	, Item.DustCannonDown : 'v'
-	, Item.DustCannonUp : '^'
-	, Item.MovingCannonLeft : '^'
-	, Item.MovingCannonRight : '^'
-	, Item.LaserRight : '\u25B6'
-	, Item.LaserDown : '\u25BC'
-	, Item.LaserLeft : '\u25C0'
-	, Item.LaserUp : '\u25B2'
-	, Item.OwlRight : 'A'
-	, Item.OwlDown : 'B'
-	, Item.OwlLeft : 'C'
-	, Item.OwlUp : 'D'
-	, Item.CreatureRight : 'E'
-	, Item.CreatureDown : 'F'
-	, Item.CreatureLeft : 'G'
-	, Item.CreatureUp : 'H'
-	, Item.BirdLeft : 'I'
-	, Item.BirdRight : 'J'
-	, Item.BirdDown : 'L'
-	, Item.BirdUp : 'K'
-	, Item.BirdUnknown1 : 'M'
-	, Item.Eyes : '&'
-	, Item.Teleporter0 : '0'
-	, Item.Teleporter1 : '1'
-	, Item.Teleporter2 : '2'
-	, Item.Teleporter3 : '3'
-	, Item.Teleporter4 : '4'
-	, Item.Teleporter5 : '5'
-	, Item.Teleporter6 : '6'
-	, Item.Teleporter7 : '7'
-	, Item.Teleporter8 : '8'
-	, Item.Teleporter9 : '9'
-
-	, Item.BeltStart : '{'
-	, Item.Belt : '-'
-	, Item.BeltEnd : '}'
-
-	, Item.Void : '.'
-	, Item.Error : 'X'
-}
-
 class Planet:
 	def __init__( self, data : bytearray ):
 		self.m_items=[]
+		self.m_rawBytes=[]
 		for y in range( 31 ):
 			self.m_items.append( [] )
+			self.m_rawBytes.append( [] )
 			for x in range( 16 ):
+				rawByte = data[ x + 16*y ]
 				try:
-					item = atariToItem[ data[ x + 16*y ] ]
+					item = atariToItem[ rawByte ]
 				except KeyError:
 					raise
 					item = Item.Error
 				self.m_items[ y ].append( item )
+				self.m_rawBytes[ y ].append( rawByte )
 	
 	def getItem( self, x : int, y : int ):
 		return self.m_items[ y ][ x ]
-	
+
+	def getRawByte( self, x : int, y : int ):
+		return self.m_rawBytes[ y ][ x ]
 		
 def getPlanets( file : atari_file.ExecutableFile ):
 	ram = file.prepareRam()
 	planets = []
 	for i in range( 56 ):
-		print ( i )
 		planetData = ram[0x3800 + i * 0x200 : 0x3800 + (i+1) * 0x200 ] 
 		planets.append( Planet( planetData ) )
 	return planets
-	
-def dumpPlanet( planet : Planet ):
-	for y in range( 31 ):
-		for x in range( 16 ):
-			c = ItemToDump[ planet.getItem( x, y ) ]
-			print( c, end ='' )
-		print( )
-	
-		
-if __name__ == "__main__":
-	if len( sys.argv ) != 2:
-		raise RuntimeError( "Expected a file name" )
-
-#dumpPlanet( getPlanets( atari_file.ExecutableFile( sys.argv[1] ) )[49] )
-
-i = 0
-planets = getPlanets( atari_file.ExecutableFile( sys.argv[1] ) )
-for planet in planets:
-	print ( i )
-	dumpPlanet( planet )
