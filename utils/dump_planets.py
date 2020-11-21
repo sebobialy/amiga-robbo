@@ -76,7 +76,11 @@ def dumpPlanet( planet : planets.Planet ):
 		for x in range( 16 ):
 			c = ItemToDump[ planet.getItem( x, y ) ]
 			print( c, end ='' )
-		print( )
+		print()
+		
+	for i in range( 16 ):
+		print( "{:02x} ".format( planet.getMetaByte( i ) ), end='' )
+	print()
 	
 		
 if __name__ == "__main__":

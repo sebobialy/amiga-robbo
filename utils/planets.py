@@ -161,6 +161,7 @@ class Planet:
 	def __init__( self, data : bytearray ):
 		self.m_items=[]
 		self.m_rawBytes=[]
+		self.m_metaData=[]
 		for y in range( 31 ):
 			self.m_items.append( [] )
 			self.m_rawBytes.append( [] )
@@ -173,12 +174,27 @@ class Planet:
 					item = Item.Error
 				self.m_items[ y ].append( item )
 				self.m_rawBytes[ y ].append( rawByte )
+		for i in range( 16 ):
+			self.m_metaData.append( data[ i + 16*31 ] )
 	
 	def getItem( self, x : int, y : int ):
 		return self.m_items[ y ][ x ]
 
 	def getRawByte( self, x : int, y : int ):
 		return self.m_rawBytes[ y ][ x ]
+
+	# known values:
+	# metaData[0] = unknown, 0,20,70,80,85,90,99 hex (BCD?)
+	# metaData[1] = number of screws encoded in BCD
+	# metadata[2] = black color
+	# metadata[3] = 
+	# metadata[4] = 
+	# metadata[5] = 
+	# metadata[6] = unknown, 0,4,10,92,b0,c0,d0 
+	# metadata[7] = background color
+	# metaData[8:15] = always 0, except for last planet where it is 0xa0
+	def getMetaByte( self, i : int ):
+		return self.m_metaData[ i ]
 		
 def getPlanets( file : atari_file.ExecutableFile ):
 	ram = file.prepareRam()
